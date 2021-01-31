@@ -1,0 +1,37 @@
+{
+  "name": "@ariastel/nodebb-plugin-filter-nsfw",
+  "version": "0.0.1",
+  "description": "NodeBB Plugin that filters NSFW images",
+  "main": "library.js",
+  "repository": "git://github.com/ariastel/nodebb-plugin-filter-nsfw.git",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nodebb",
+    "plugin"
+  ],
+  "homepage": "https://github.com/ariastel/nodebb-plugin-filter-nsfw",
+  "author": {
+    "name": "Antosik",
+    "email": "grig_anton96@mail.ru"
+  },
+  "contributors": [
+    "Ariastel Team <ariastel@iamantosik.me> (https://github.com/ariastel)"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow/tfjs-node": "^2.8.3",
+    "nsfwjs": "^2.3.0"
+  },
+  "nbbpm": {
+    "compatibility": "^1.16.x"
+  },
+  "devDependencies": {
+    "eslint": "^7.18.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
