@@ -12,14 +12,28 @@
 			"method": "addAdminNavigation"
 		},
 		{
-			"hook": "filter:uploadImage",
-			"method": "filterImage",
-			"priority": 1
+			"hook": "filter:post.tools",
+			"method": "addPostTool"
+		},
+		{
+			"hook": "action:post.save",
+			"method": "onPostCreate"
+		},
+		{
+			"hook": "action:post.edit",
+			"method": "onPostEdit"
 		}
+	],
+	"less": [
+		"styles/posts.less"
+	],
+	"scripts": [
+		"lib/main.js"
 	],
 	"acpScripts": [
 		"lib/admin.js"
 	],
+	"languages": "languages",
 	"templates": "templates",
 	"settingsRoute": "/admin/plugins/filter-nsfw"
 }
