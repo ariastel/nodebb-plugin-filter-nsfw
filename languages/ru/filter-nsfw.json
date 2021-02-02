@@ -1,0 +1,8 @@
+{
+  "post.tool.mark": "Cодержит NSFW-контент",
+  "post.tool.unmark": "Снять пометку о NSFW-контенте",
+  "post.alert.marked": "Пост помечен как содержащий NSFW-контент",
+  "post.alert.unmarked": "Пометка о наличии NSFW-контента снята",
+  "post.agreement.text": "Данная запись содержит контент неподходящий для лиц младше 18 лет.",
+  "post.agreement.button": "Я подтверждаю что мне есть 18 лет"
+}

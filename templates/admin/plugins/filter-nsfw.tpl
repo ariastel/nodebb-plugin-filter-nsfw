@@ -23,13 +23,6 @@
 							<input type="number" id="sexy" name="sexy" min="0" max="100" class="form-control">
 						</div>
 					</div>
-					<p>Setup blur size</p>
-					<div class="form-group">
-						<label for="host" class="col-sm-1 control-label">Blur size</label>
-    				<div class="col-sm-3">
-							<input type="number" id="blur" name="blur" min="0.3" max="1000" class="form-control">
-						</div>
-					</div>
 				</form>
 			</div>
 		</div>

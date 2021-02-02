@@ -4,6 +4,8 @@ const meta = require.main.require('./src/meta');
 const posts = require.main.require('./src/posts');
 const privileges = require.main.require('./src/privileges');
 const SocketPlugins = require.main.require('./src/socket.io/plugins');
+const user = require.main.require('./src/user');
+
 const tf = require('@tensorflow/tfjs-node');
 const nsfw = require('nsfwjs');
 const fetch = require('node-fetch');
@@ -14,6 +16,7 @@ const FilterNSFWPlugin = {
   model: null
 };
 
+// #region Plugin
 FilterNSFWPlugin.init = function (data, callback) {
   function render(_, res) {
     res.render('admin/plugins/filter-nsfw', {});
@@ -39,16 +42,83 @@ FilterNSFWPlugin.addAdminNavigation = function (custom_header, callback) {
   callback(null, custom_header);
 };
 
-function getImagesFromPost(content) {
-    const regexp = new RegExp(/!\[[^[()\]]*\]\(([^[()\]]*)\)/, "g");
-    const results = [];
+FilterNSFWPlugin.onPostCreate = async function ({ post }) {
+  await handlePostChange(post);
+};
 
-    let tempArr;
-    while ((tempArr = regexp.exec(content)) !== null) {
-      results.push(tempArr[1]);
+FilterNSFWPlugin.onPostEdit = async function ({ post }) {
+  await handlePostChange(post);
+};
+
+FilterNSFWPlugin.onUserFieldChange = async function ({ uid, field }) {
+  if (field === 'birthday') {
+    await user.setUserField(uid, 'nsfwAgreement', 0);
+  }
+};
+
+FilterNSFWPlugin.addPostTool = async function (postData) {
+
+  if (!postData.uid || !postData.pid) {
+    return postData;
+  }
+
+  const canToggleMark = await isCanToggleMark(postData.pid, postData.uid);
+  if (!canToggleMark) {
+    return postData;
+  }
+
+  const containsNSFW = await isPostHasNSFWMark(postData.pid);
+  postData.tools.push({
+    action: 'filter-nsfw/mark',
+    html: containsNSFW ? '[[filter-nsfw:post.tool.unmark]]' : '[[filter-nsfw:post.tool.mark]]',
+    icon: containsNSFW ? 'fa-circle' : 'fa-check-circle',
+  });
+
+  return postData;
+};
+// #endregion Plugin
+
+// #region SocketPlugin
+
+
+function handleSocketIO() {
+  SocketPlugins.NSFWFilter = {};
+
+  SocketPlugins.NSFWFilter.toggleNSFW = async function (socket, data) {
+
+    const canToggleMark = await isCanToggleMark(data.pid, socket.uid);
+    if (!canToggleMark) {
+      throw new Error('[[error:no-privileges]]');
     }
 
-    return results;
+    return await toggleNSFW(data.pid);
+  };
+
+  SocketPlugins.NSFWFilter.isNSFWAllowed = async function (socket) {
+    return await isNSFWAllowed(socket.uid);
+  };
+
+  SocketPlugins.NSFWFilter.subscribeAgreement = async function (socket) {
+    return await setAgreementMark(socket.uid);
+  };
+
+}
+//#endregion Socket Plugin
+
+module.exports = FilterNSFWPlugin;
+
+
+// #region Functions
+function getImagesFromPost(content) {
+  const regexp = new RegExp(/!\[[^[()\]]*\]\(([^[()\]]*)\)/, "g");
+  const results = [];
+
+  let tempArr;
+  while ((tempArr = regexp.exec(content)) !== null) {
+    results.push(tempArr[1]);
+  }
+
+  return results;
 }
 
 async function downloadAndCheckImage(url) {
@@ -65,10 +135,10 @@ async function wait(time = 1e3) {
 async function handlePostChange(post) {
   let isNSFWPost = false;
 
-	// eslint-disable-next-line no-prototype-builtins
-	if (post.hasOwnProperty('isNSFW')) {
-		return;
-	}
+  // eslint-disable-next-line no-prototype-builtins
+  if (post.hasOwnProperty('isNSFW')) {
+    return;
+  }
 
   for (const image of getImagesFromPost(post.content)) {
     const isNSFWImage = await downloadAndCheckImage(image);
@@ -78,75 +148,35 @@ async function handlePostChange(post) {
     }
     await wait();
   }
-  
+
   if (isNSFWPost) {
     await posts.setPostField(post.pid, 'isNSFW', 1);
   }
 }
 
+async function isPostHasNSFWMark(pid) {
+  let isNSFW = await posts.getPostField(pid, 'isNSFW');
+  return parseInt(isNSFW, 10) === 1;
+}
+
 async function toggleNSFW(pid) {
 
-	let isNSFW = await posts.getPostField(pid, 'isNSFW');
-  isNSFW = parseInt(isNSFW, 10) === 1;
-  
-	const updatedPostField = isNSFW ? 0 : 1;
+  const updatedPostField = await isPostHasNSFWMark(pid) ? 0 : 1;
   await posts.setPostField(pid, 'isNSFW', updatedPostField);
-  
+
   return updatedPostField;
 }
 
-function handleSocketIO() {
-	SocketPlugins.NSFWFilter = {};
-
-	SocketPlugins.NSFWFilter.toggleNSFW = async function (socket, data) {
-		const canToggleMark = await isCanToggleMark(data.pid, socket.uid);
-		if (!canToggleMark) {
-			throw new Error('[[error:no-privileges]]');
-		}
-
-		return await toggleNSFW(data.pid);
-	};
-}
-
 async function isCanToggleMark(pid, uid) {
-  
+
   const cid = await posts.getCidByPid(pid);
-  const [isAdminOrMod, { flag: canEdit }] = await Promise.all([
+  const [isAdminOrMod = false, { flag: canEdit } = { flag: false }] = await Promise.all([
     privileges.categories.isAdminOrMod(cid, uid),
     privileges.posts.canEdit(pid, uid)
   ]);
 
   return isAdminOrMod || canEdit;
 }
-
-FilterNSFWPlugin.onPostCreate = async function ({ post }) {
-  await handlePostChange(post);
-};
-
-FilterNSFWPlugin.onPostEdit = async function ({ post }) {
-  await handlePostChange(post);
-};
-
-FilterNSFWPlugin.addPostTool = async function (postData) {
-
-  if (!postData.uid || !postData.pid) {
-    return postData;
-  }
-
-  const canToggleMark = await isCanToggleMark(postData.pid, postData.uid);
-  if (!canToggleMark) {
-    return postData;
-  }
-
-	postData.isNSFW = parseInt(postData.isNSFW, 10) === 1;
-  postData.tools.push({
-    action: 'nsfw-filter/mark',
-    html: '[[nsfw-filter:post.tool.mark]]',
-    icon: 'fa-check-circle',
-  });
-
-	return postData;
-};
 
 async function isNSFWImage(buffer) {
 
@@ -164,4 +194,29 @@ async function isNSFWImage(buffer) {
   return false;
 }
 
-module.exports = FilterNSFWPlugin;
+async function setAgreementMark(uid) {
+  return uid
+    ? await user.setUserField(uid, 'nsfwAgreement', 1)
+    : null;
+}
+
+async function isNSFWAllowed(uid) {
+
+  if (!uid) {
+    return { birthday: false, agreement: false };
+  }
+
+  const userData = await user.getUserFields(uid, ['birthday', 'nsfwAgreement']);
+  if (!userData || !userData.birthday) {
+    return { birthday: false, agreement: false };
+  }
+
+  const ageDifMs = Date.now() - new Date(userData.birthday).getTime();
+  const ageDate = new Date(ageDifMs);
+
+  return {
+    birthday: Math.abs(ageDate.getUTCFullYear() - 1970) > 18,
+    agreement: userData.nsfwAgreement === 1
+  }
+}
+// #endregion Functions

@@ -22,6 +22,10 @@
 		{
 			"hook": "action:post.edit",
 			"method": "onPostEdit"
+		},
+		{
+			"hook": "action:user.set",
+			"method": "onUserFieldChange"
 		}
 	],
 	"less": [
