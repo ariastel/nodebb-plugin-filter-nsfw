@@ -76,6 +76,25 @@ FilterNSFWPlugin.addPostTool = async function (postData) {
 
   return postData;
 };
+
+FilterNSFWPlugin.onGetPostSummaryByPids = async function (postData) {
+
+  const postsMarks = await posts.getPostsFields(postData.posts.map(post => post.pid), ['pid', 'isNSFW']);
+  if (!postsMarks) {
+    return postData;
+  }
+
+  const marks = {};
+  for (const post of postsMarks) {
+    marks[post.pid] = post.isNSFW;
+  }
+
+  for (const post of postData.posts) {
+    post.isNSFW = marks[post.pid] || 0;
+  }
+
+  return postData;
+}
 // #endregion Plugin
 
 // #region SocketPlugin

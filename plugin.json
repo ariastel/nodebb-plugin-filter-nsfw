@@ -26,6 +26,10 @@
 		{
 			"hook": "action:user.set",
 			"method": "onUserFieldChange"
+		},
+		{
+			"hook": "filter:post.getPostSummaryByPids",
+			"method": "onGetPostSummaryByPids"
 		}
 	],
 	"less": [

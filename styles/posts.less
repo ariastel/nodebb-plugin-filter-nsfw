@@ -1,33 +1,19 @@
-.containsNSFW .content {
-  position: relative;
+.containsNSFW .content img {
+  filter: url(#nsfwBlur);
+  transform: translateZ(0);
+}
 
-  &:before {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, .8);
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  img {
-    filter: url(#nsfwBlur);
-  }
+.containsNSFW .content a {
+  user-select: none;
+  pointer-events: none;
 }
 
 .agreement {
-  position: absolute;
-  width: 500px;
-  max-width: 80%;
-  align-items: center;
-  justify-content: center;
-  top: 75px;
-  left: 50%;
-  z-index: 3;
+  display: block;
+  margin-bottom: 80px;
   text-align: center;
-  transform: translateX(-50%);
-  margin: 0;
+}
+
+.agreement + .content {
+  margin-left: 4.5rem  !important;
 }
