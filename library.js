@@ -62,17 +62,20 @@ FilterNSFWPlugin.addPostTool = async function (postData) {
     return postData;
   }
 
-  const canToggleMark = await isCanToggleMark(postData.pid, postData.uid);
-  if (!canToggleMark) {
+  const { mod = false, user = false } = await isCanToggleMark(postData.pid, postData.uid);
+  if (!mod && !user) {
     return postData;
   }
 
   const containsNSFW = await isPostHasNSFWMark(postData.pid);
-  postData.tools.push({
-    action: 'filter-nsfw/mark',
-    html: containsNSFW ? '[[filter-nsfw:post.tool.unmark]]' : '[[filter-nsfw:post.tool.mark]]',
-    icon: containsNSFW ? 'fa-circle' : 'fa-check-circle',
-  });
+
+  if (mod || (user && !containsNSFW)) {
+    postData.tools.push({
+      action: 'filter-nsfw/mark',
+      html: containsNSFW ? '[[filter-nsfw:post.tool.unmark]]' : '[[filter-nsfw:post.tool.mark]]',
+      icon: containsNSFW ? 'fa-circle' : 'fa-check-circle',
+    });
+  }
 
   return postData;
 };
@@ -105,8 +108,17 @@ function handleSocketIO() {
 
   SocketPlugins.NSFWFilter.toggleNSFW = async function (socket, data) {
 
-    const canToggleMark = await isCanToggleMark(data.pid, socket.uid);
-    if (!canToggleMark) {
+    const { mod = false, user = false } = await isCanToggleMark(data.pid, socket.uid);
+    if (!mod && !user) {
+      throw new Error('[[error:no-privileges]]');
+    }
+
+    if (mod) {
+      return await toggleNSFW(data.pid);
+    }
+
+    const isNSFW = await isPostHasNSFWMark(data.pid);
+    if (isNSFW) {
       throw new Error('[[error:no-privileges]]');
     }
 
@@ -193,7 +205,7 @@ async function isCanToggleMark(pid, uid) {
     privileges.posts.canEdit(pid, uid)
   ]);
 
-  return isAdminOrMod || canEdit;
+  return { mod: isAdminOrMod, user: canEdit };
 }
 
 async function isNSFWImage(buffer) {
