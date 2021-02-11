@@ -77,7 +77,7 @@ FilterNSFWPlugin.addPostTool = async function (postData) {
   return postData;
 };
 
-FilterNSFWPlugin.onGetPostSummaryByPids = async function (postData) {
+FilterNSFWPlugin.addNSFWFlag = async function (postData) {
 
   const postsMarks = await posts.getPostsFields(postData.posts.map(post => post.pid), ['pid', 'isNSFW']);
   if (!postsMarks) {
@@ -120,7 +120,6 @@ function handleSocketIO() {
   SocketPlugins.NSFWFilter.subscribeAgreement = async function (socket) {
     return await setAgreementMark(socket.uid);
   };
-
 }
 //#endregion Socket Plugin
 

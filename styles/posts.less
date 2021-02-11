@@ -1,19 +1,33 @@
-.containsNSFW .content img {
-  filter: url(#nsfwBlur);
-  transform: translateZ(0);
+.containsNSFW {
+
+  &>.content img,
+  &+.mini-content img {
+    filter: url(#nsfwBlur);
+    transform: translateZ(0);
+  }
+
+  &>.content a,
+  &>.content img,
+  &+.mini-content a,
+  &+.mini-content img {
+    user-select: none;
+    pointer-events: none;
+  }
 }
 
-.containsNSFW .content a {
-  user-select: none;
-  pointer-events: none;
-}
-
-.agreement {
+.containsNSFW>.afn_agreement {
   display: block;
+}
+
+:not(.containsNSFW)>.afn_agreement {
+  display: none;
+}
+
+.afn_agreement {
   margin-bottom: 80px;
   text-align: center;
-}
 
-.agreement + .content {
-  margin-left: 4.5rem  !important;
+  &+.content {
+    margin-left: 4.5rem !important;
+  }
 }
