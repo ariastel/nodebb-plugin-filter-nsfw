@@ -1,25 +1,25 @@
-.containsNSFW {
+[component="post"].containsNSFW {
 
-  &>.content img,
+  & .content img,
   &+.mini-content img {
     filter: url(#nsfwBlur);
     transform: translateZ(0);
   }
 
-  &>.content a,
-  &>.content img,
+  & .content a,
+  & .content img,
   &+.mini-content a,
   &+.mini-content img {
     user-select: none;
     pointer-events: none;
   }
+
+  & .afn_agreement {
+    display: block;
+  }
 }
 
-.containsNSFW>.afn_agreement {
-  display: block;
-}
-
-:not(.containsNSFW)>.afn_agreement {
+[component="post"]:not(.containsNSFW) .afn_agreement {
   display: none;
 }
 
