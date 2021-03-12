@@ -17,7 +17,7 @@ const FilterNSFWPlugin = {
 };
 
 // #region Plugin
-FilterNSFWPlugin.init = function (data, callback) {
+FilterNSFWPlugin.init = async function (data) {
   function render(_, res) {
     res.render('admin/plugins/filter-nsfw', {});
   }
@@ -27,19 +27,20 @@ FilterNSFWPlugin.init = function (data, callback) {
 
   handleSocketIO();
 
-  meta.settings.get('filter-nsfw', async function (_, settings) {
-    FilterNSFWPlugin.settings = settings;
-    FilterNSFWPlugin.model = await nsfw.load();
-    callback();
-  });
+  [FilterNSFWPlugin.settings, FilterNSFWPlugin.model] = await Promise.all([
+    meta.settings.get('filter-nsfw'),
+    nsfw.load()
+  ]);
+  
+  return;
 }
 
-FilterNSFWPlugin.addAdminNavigation = function (custom_header, callback) {
+FilterNSFWPlugin.addAdminNavigation = async function (custom_header) {
   custom_header.plugins.push({
     'route': '/plugins/filter-nsfw',
     "name": 'Filter NSFW'
   });
-  callback(null, custom_header);
+  return custom_header;
 };
 
 FilterNSFWPlugin.onPostCreate = async function ({ post }) {
@@ -47,7 +48,9 @@ FilterNSFWPlugin.onPostCreate = async function ({ post }) {
 };
 
 FilterNSFWPlugin.onPostEdit = async function ({ post }) {
-  await handlePostChange(post);
+  if (post.changed) {
+    await handlePostChange(post);
+  }
 };
 
 FilterNSFWPlugin.onUserFieldChange = async function ({ uid, field }) {
@@ -93,7 +96,7 @@ FilterNSFWPlugin.addNSFWFlag = async function (postData) {
   }
 
   for (const post of postData.posts) {
-    post.isNSFW = marks[post.pid] || 0;
+    post.isNSFW = parseInt(marks[post.pid]) || 0;
   }
 
   return postData;
@@ -216,7 +219,7 @@ async function isNSFWImage(buffer) {
 
   for (const prediction of predictions) {
     const name = prediction.className.toLowerCase();
-    if (name in FilterNSFWPlugin.settings && prediction.probability * 100 >= FilterNSFWPlugin.settings[name]) {
+    if (name in FilterNSFWPlugin.settings && prediction.probability * 100 >= parseInt(FilterNSFWPlugin.settings[name], 10)) {
       return true;
     }
   }
