@@ -1,0 +1,8 @@
+{
+  "post.tool.mark": "Contains NSFW content",
+  "post.tool.unmark": "Uncheck \"Contains NSFW content\" mark",
+  "post.alert.marked": "The post is marked as containing NSFW content",
+  "post.alert.unmarked": "The post is unmarked as containing NSFW content",
+  "post.agreement.text": "This post contains content that is not appropriate for people under 18 years old.",
+  "post.agreement.button": "I certify that I am 18 years old"
+}
