@@ -22,15 +22,15 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-node": "^2.8.3",
+    "@tensorflow/tfjs-node": "^3.4.0",
     "node-fetch": "^2.6.1",
-    "nsfwjs": "^2.3.0"
+    "nsfwjs": "^2.4.0"
   },
   "nbbpm": {
     "compatibility": "^1.16.x"
   },
   "devDependencies": {
-    "eslint": "^7.18.0"
+    "eslint": "^7.24.0"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
