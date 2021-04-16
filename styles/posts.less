@@ -1,15 +1,14 @@
 [component="post"].containsNSFW {
 
-  & .content img,
-  &+.mini-content img {
-    filter: url(#nsfwBlur);
-    transform: translateZ(0);
+  & .content,
+  &+.mini-content {
+    display: none;
   }
 
-  & .content a,
-  & .content img,
-  &+.mini-content a,
-  &+.mini-content img {
+  & .content *,
+  & .content *,
+  &+.mini-content *,
+  &+.mini-content * {
     user-select: none;
     pointer-events: none;
   }
