@@ -30,6 +30,10 @@
 		{
 			"hook": "filter:post.getPostSummaryByPids",
 			"method": "addNSFWFlag"
+		},
+		{
+			"hook": "filter:post.getRawPost",
+			"method": "getRawPost"
 		}
 	],
 	"less": [

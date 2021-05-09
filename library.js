@@ -101,6 +101,20 @@ FilterNSFWPlugin.addNSFWFlag = async function (postData) {
 
   return postData;
 }
+
+FilterNSFWPlugin.getRawPost = async function getRawPost(payload) {
+
+  if (!payload?.postData?.pid) {
+    return payload;
+  }
+
+  const containsNSFW = await isPostHasNSFWMark(payload.postData.pid);
+  if (containsNSFW) {
+    payload.postData.content = "[[filter-nsfw:post.agreement.text]]";
+  }
+
+  return payload;
+}
 // #endregion Plugin
 
 // #region SocketPlugin
