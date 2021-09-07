@@ -1,6 +1,6 @@
 {
   "name": "@ariastel/nodebb-plugin-filter-nsfw",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "NodeBB Plugin that filters NSFW images",
   "main": "library.js",
   "repository": "git://github.com/ariastel/nodebb-plugin-filter-nsfw.git",
