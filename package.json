@@ -30,7 +30,9 @@
     "compatibility": "^1.16.x"
   },
   "devDependencies": {
-    "eslint": "^7.24.0"
+    "eslint": "^7.32.0",
+    "eslint-config-nodebb": "^0.0.2",
+    "eslint-plugin-import": "^2.24.2"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
