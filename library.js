@@ -8,7 +8,7 @@ const user = require.main.require('./src/user');
 
 const tf = require('@tensorflow/tfjs-node');
 const nsfw = require('nsfwjs');
-const fetch = require('node-fetch');
+const undici = require('undici');
 
 
 const FilterNSFWPlugin = {
@@ -161,7 +161,7 @@ function getImagesFromPost(content) {
 }
 
 async function downloadAndCheckImage(url) {
-	const buffer = await fetch(url).then(res => res.buffer()).catch(() => null);
+	const buffer = await undici.request(url).then(res => res.body.arrayBuffer()).catch(() => null);
 	return buffer ?
 		await isNSFWImage(buffer) :
 		false;

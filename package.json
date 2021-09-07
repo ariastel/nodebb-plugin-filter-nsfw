@@ -22,9 +22,9 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@tensorflow/tfjs-node": "^3.4.0",
-    "node-fetch": "^2.6.1",
-    "nsfwjs": "^2.4.0"
+    "@tensorflow/tfjs-node": "^3.9.0",
+    "nsfwjs": "^2.4.1",
+    "undici": "^4.5.1"
   },
   "nbbpm": {
     "compatibility": "^1.16.x"
